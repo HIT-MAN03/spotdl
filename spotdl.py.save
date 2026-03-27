@@ -1,0 +1,120 @@
+import os
+import re
+import sys
+from dotenv import load_dotenv
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
+import yt_dlp
+
+def show_banner():
+    banner = r"""
+██╗  ██╗███████╗ █████╗ ██╗   ██╗███████╗███╗   ██╗██╗     ██╗   ██╗
+██║  ██║██╔════╝██╔══██╗██║   ██║██╔════╝████╗  ██║██║     ╚██╗ ██╔╝
+███████║█████╗  ███████║██║   ██║█████╗  ██╔██╗ ██║██║      ╚████╔╝ 
+██╔══██║██╔══╝  ██╔══██║╚██╗ ██╔╝██╔══╝  ██║╚██╗██║██║       ╚██╔╝  
+██║  ██║███████╗██║  ██║ ╚████╔╝ ███████╗██║ ╚████║███████╗   ██║   
+╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝╚═╝  ╚═══╝╚══════╝   ╚═╝   
+
+        🔥 HEAVENLY DEMON SPOTIFY DOWNLOADER 🔥
+    """
+    print(banner)
+
+# कहाँ to save files
+DOWNLOAD_DIR = "/storage/emulated/0/Music/SpotifyDownloads"
+AUDIO_BITRATE = "320"
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
+
+def sanitize_filename(name: str) -> str:
+    name = re.sub(r'[\\/:*?"<>|]', "", name)
+    name = re.sub(r"\s+", " ", name).strip()
+    return name[:180]
+
+def ensure_ffmpeg_available():
+    from shutil import which
+    if which("ffmpeg") is None:
+        raise RuntimeError("FFmpeg is not installed. Run: pkg install ffmpeg")
+
+def get_spotify_client():
+    client_id = os.getenv("SPOTIFY_CLIENT_ID")
+    client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
+
+    if not client_id or not client_secret:
+        raise RuntimeError("Missing Spotify API keys in .env")
+
+    return spotipy.Spotify(
+        auth_manager=SpotifyClientCredentials(
+            client_id=client_id,
+            client_secret=client_secret
+        )
+    )
+
+def extract_tracks(sp, playlist_url):
+    tracks = []
+    results = sp.playlist_items(playlist_url)
+
+    while results:
+        for item in results["items"]:
+            track = item["track"]
+            if not track:
+                continue
+
+            title = track["name"]
+            artist = track["artists"][0]["name"]
+            tracks.append(f"{title} {artist} audio")
+
+        results = sp.next(results) if results["next"] else None
+
+    return tracks
+
+def download_audio(query):
+    safe = sanitize_filename(query)
+    outtmpl = os.path.join(DOWNLOAD_DIR, f"{safe}.%(ext)s")
+
+    ydl_opts = {
+        "format": "bestaudio/best",
+        "outtmpl": outtmpl,
+        "quiet": False,
+        "default_search": "ytsearch1",
+        "postprocessors": [{
+            "key": "FFmpegExtractAudio",
+            "preferredcodec": "mp3",
+            "preferredquality": AUDIO_BITRATE,
+        }],
+    }
+
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([query])
+
+def main():
+    os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+    ensure_ffmpeg_available()
+
+    sp = get_spotify_client()
+
+    if len(sys.argv) > 1:
+        playlist = sys.argv[1]
+    else:
+        playlist = input("Paste Spotify playlist link: ").strip()
+
+    if not playlist:
+        print("No playlist provided.")
+        return
+
+    print("Fetching tracks...")
+    tracks = extract_tracks(sp, playlist)
+
+    print(f"{len(tracks)} tracks found\n")
+
+    for i, track in enumerate(tracks, 1):
+        print(f"[{i}/{len(tracks)}] Downloading: {track}")
+        try:
+            download_audio(track)
+        except Exception as e:
+            print(f"Failed: {e}")
+
+    print("\n✅ Done! Check your Music folder.")
+
+if __name__ == "__main__":
+    main()

@@ -10,18 +10,62 @@ A powerful Python tool to download Spotify tracks and playlists from YouTube in 
 - 🚀 Fast and lightweight
 - 💻 Works on Termux (Android) and Linux
 
-## Requirements
+---
 
-- Python 3
-- `yt_dlp` (`pip install yt_dlp`)
-- `ffmpeg` (for audio extraction)
+## 📥 COMPLETE INSTALLATION GUIDE FOR NEWBIES
 
-### Install Dependencies (Termux)
+Follow these steps in order:
+
+### Step 1: Install Git (Required to Clone the Repo)
+
+```bash
+pkg update && pkg upgrade
+pkg install git
+```
+
+### Step 2: Clone the Repository
+
+```bash
+cd ~
+git clone <YOUR_GIT_REPO_URL_HERE>
+```
+
+> ⚠️ Replace `<YOUR_GIT_REPO_URL_HERE>` with your actual GitHub/Git repo URL (e.g., `https://github.com/YOUR_USERNAME/spotdl.git`)
+
+### Step 3: Install Python and Dependencies
 
 ```bash
 pkg install python ffmpeg
 pip install yt_dlp
 ```
+
+### Step 4: Make the Script Executable
+
+```bash
+chmod +x ~/bin/spotdl
+chmod +x ~/bin/spotdl.py
+```
+
+### Step 5: Add bin to PATH (Optional but Recommended)
+
+```bash
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+---
+
+## 🚀 Quick One-Line Setup (Copy & Paste Everything)
+
+```bash
+pkg update && pkg upgrade && pkg install git python ffmpeg && pip install yt_dlp && cd ~ && git clone <YOUR_GIT_REPO_URL_HERE> && chmod +x ~/bin/spotdl ~/bin/spotdl.py && echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+```
+
+> ⚠️ Remember to replace `<YOUR_GIT_REPO_URL_HERE>` with your actual repo URL!
+
+---
+
+## Usage
 
 ## Usage
 
