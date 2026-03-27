@@ -3,17 +3,17 @@
 
 import os
 import re
-import time
+import sys
 import yt_dlp
 
 # ---------- CONFIG ----------
-DOWNLOAD_DIR = "downloads"
-AUDIO_BITRATE = "320"  # kbps for mp3 extraction
-LOG_FILE = "downloaded_tracks.txt"  # tracks already downloaded
+DOWNLOAD_DIR = "/storage/emulated/0/Music/SpotifyDownloads"
+AUDIO_BITRATE = "320"
+LOG_FILE = "downloaded_tracks.txt"
 # ---------------------------
 
-# ---------- ASCII HEADER ----------
-ASCII_ART = r"""
+def show_banner():
+    banner = r"""
 ██╗  ██╗███████╗ █████╗ ██╗   ██╗███████╗███╗   ██╗██╗     ██╗   ██╗
 ██║  ██║██╔════╝██╔══██╗██║   ██║██╔════╝████╗  ██║██║     ╚██╗ ██╔╝
 ███████║█████╗  ███████║██║   ██║█████╗  ██╔██╗ ██║██║      ╚████╔╝
@@ -21,7 +21,7 @@ ASCII_ART = r"""
 ██║  ██║███████╗██║  ██║ ╚████╔╝ ███████╗██║ ╚████║███████╗   ██║
 ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝╚═╝  ╚═══╝╚══════╝   ╚═╝
 
-██████╗ ███████╗███╗   ██╗ ██████╗ ███╗   ██╗
+██████╗ ███████╗███╗   ███╗ ██████╗ ███╗   ██╗
 ██╔══██╗██╔════╝████╗ ████║██╔═══██╗████╗  ██║
 ██║  ██║█████╗  ██╔████╔██║██║   ██║██╔██╗ ██║
 ██║  ██║██╔══╝  ██║╚██╔╝██║██║   ██║██║╚██╗██║
@@ -29,33 +29,27 @@ ASCII_ART = r"""
 ╚═════╝ ╚══════╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
 
         ⚡ HEAVENLY DEMON SPOTIFY DOWNLOADER ⚡
-"""
+    """
+    print("\033[1;36m" + banner + "\033[0m")
 
-# ---------- FUNCTIONS ----------
 
 def sanitize_filename(name: str) -> str:
-    """Remove illegal characters from filenames"""
     name = re.sub(r'[\\/:*?"<>|]', "", name)
     name = re.sub(r"\s+", " ", name).strip()
-    return name[:180] if len(name) > 180 else name
+    return name[:180]
 
-def download_audio_mp3(query: str) -> str:
-    """Download a single track from YouTube and convert to mp3"""
+
+def download_audio(query: str):
+    safe = sanitize_filename(query)
     os.makedirs(DOWNLOAD_DIR, exist_ok=True)
-    safe_base = sanitize_filename(query)
-    mp3_path = os.path.join(DOWNLOAD_DIR, f"{safe_base}.mp3")
-
-    if os.path.exists(mp3_path):
-        return mp3_path
-
-    outtmpl = os.path.join(DOWNLOAD_DIR, f"{safe_base}.%(ext)s")
+    outtmpl = os.path.join(DOWNLOAD_DIR, f"{safe}.%(ext)s")
 
     ydl_opts = {
-        "format": "bestaudio/best",
+        "format": "bestaudio[ext=m4a]/bestaudio/best",  # 🔥 better real quality
         "outtmpl": outtmpl,
-        "quiet": True,
+        "quiet": False,
         "noplaylist": True,
-        "default_search": "ytsearch1",
+        "default_search": "ytsearch1",  # ✅ KEEPING OLD ACCURACY
         "postprocessors": [{
             "key": "FFmpegExtractAudio",
             "preferredcodec": "mp3",
@@ -64,71 +58,79 @@ def download_audio_mp3(query: str) -> str:
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.extract_info(query, download=True)
+        ydl.download([query])
 
-    if not os.path.exists(mp3_path):
-        raise RuntimeError(f"Download finished but MP3 not found: {mp3_path}")
 
-    return mp3_path
-
-def download_all(tracks: list[str]) -> list[tuple[str, str]]:
-    """
-    Download all tracks, skipping already downloaded ones.
-    Returns list of tuples: (track_query, mp3_path)
-    """
-    results = []
-
-    # Load already downloaded tracks
-    downloaded_set = set()
-    if os.path.exists(LOG_FILE):
-        with open(LOG_FILE, "r", encoding="utf-8") as f:
-            downloaded_set = set(line.strip() for line in f if line.strip())
-
-    total = len(tracks)
-    for i, track in enumerate(tracks, start=1):
-        if track in downloaded_set:
-            print(f"[{i}/{total}] Skipping already downloaded: {track}")
-            continue
-
-        print(f"[{i}/{total}] Downloading: {track}")
-        try:
-            mp3_file = download_audio_mp3(track)
-            results.append((track, mp3_file))
-            downloaded_set.add(track)
-            # Append to log immediately
-            with open(LOG_FILE, "a", encoding="utf-8") as f:
-                f.write(track + "\n")
-            print(f"Saved: {mp3_file}\n")
-        except Exception as e:
-            print(f"Failed: {track}\nReason: {e}\n")
-
-    return results
-
-def main() -> None:
-    print(ASCII_ART)
-    print("Paste your list of songs below. One per line. Enter an empty line to finish.\n")
-
+def parse_track_list(input_text: str):
     tracks = []
-    while True:
-        try:
-            line = input()
-        except EOFError:
-            break
+    for line in input_text.splitlines():
         line = line.strip()
         if not line:
-            break
+            continue
+        line = re.sub(r'^\d+\.\s*', '', line)
         tracks.append(line)
+    return tracks
+
+
+def load_downloaded():
+    if not os.path.exists(LOG_FILE):
+        return set()
+    with open(LOG_FILE, "r", encoding="utf-8") as f:
+        return set(line.strip() for line in f if line.strip())
+
+
+def save_downloaded(track):
+    with open(LOG_FILE, "a", encoding="utf-8") as f:
+        f.write(track + "\n")
+
+
+def main():
+    show_banner()
+
+    downloaded_set = load_downloaded()
+
+    # Input handling
+    if len(sys.argv) > 1:
+        source = sys.argv[1]
+        if os.path.isfile(source):
+            with open(source, "r", encoding="utf-8") as f:
+                tracks = parse_track_list(f.read())
+        else:
+            tracks = parse_track_list(source)
+    else:
+        print("Paste your list of songs (e.g. 'Artist - Title'). Finish with empty line:")
+        lines = []
+        while True:
+            try:
+                line = input()
+            except EOFError:
+                break
+            if not line.strip():
+                break
+            lines.append(line)
+        tracks = parse_track_list("\n".join(lines))
 
     if not tracks:
-        print("No tracks provided. Exiting.")
+        print("No tracks provided.")
         return
 
-    print(f"\n{len(tracks)} tracks to download.\nStarting download...\n")
-    downloaded = download_all(tracks)
+    print(f"\nFound {len(tracks)} tracks.\nStarting download...\n")
 
-    print("\n✅ Download phase complete.")
-    print(f"Downloaded successfully: {len(downloaded)} / {len(tracks)}")
-    print(f"Check your '{DOWNLOAD_DIR}' folder for the files.")
+    for i, track in enumerate(tracks, 1):
+        if track in downloaded_set:
+            print(f"[{i}/{len(tracks)}] Skipping (already downloaded): {track}")
+            continue
+
+        print(f"[{i}/{len(tracks)}] Downloading: {track}")
+
+        try:
+            download_audio(track)
+            save_downloaded(track)
+        except Exception as e:
+            print(f"Failed to download {track}: {e}")
+
+    print("\n✅ All downloads complete! Check your Music/SpotifyDownloads folder.")
+
 
 if __name__ == "__main__":
     main()
