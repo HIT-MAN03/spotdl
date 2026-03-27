@@ -25,15 +25,33 @@ pip install yt_dlp
 
 ## Usage
 
-1. Run the script:
-   ```bash
-   ./spotdl
-   # or
-   python spotdl.py
-   ```
+### Quick Download (Single Track)
+```bash
+spotdl "Artist Name - Song Title"
+# or
+python spotdl.py "Artist Name - Song Title"
+```
 
-2. Paste your list of songs (one per line)
-3. Press Enter on an empty line to start downloading
+**Examples:**
+```bash
+spotdl "Just Pete - Drowning"
+spotdl "The Weeknd - Blinding Lights"
+```
+
+### Interactive Mode (Multiple Tracks)
+```bash
+spotdl
+# or
+python spotdl.py
+```
+Then paste your list of songs (one per line) and press Enter on an empty line to start.
+
+### From File
+```bash
+spotdl tracks.txt
+# or
+python spotdl.py tracks.txt
+```
 
 ## Example
 
