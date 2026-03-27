@@ -26,11 +26,8 @@ pkg install git
 ### Step 2: Clone the Repository
 
 ```bash
-cd ~
-git clone <YOUR_GIT_REPO_URL_HERE>
+git clone https://github.com/HIT-MAN03/spotdl.git
 ```
-
-> ⚠️ Replace `<YOUR_GIT_REPO_URL_HERE>` with your actual GitHub/Git repo URL (e.g., `https://github.com/YOUR_USERNAME/spotdl.git`)
 
 ### Step 3: Install Python and Dependencies
 
@@ -58,10 +55,8 @@ source ~/.bashrc
 ## 🚀 Quick One-Line Setup (Copy & Paste Everything)
 
 ```bash
-pkg update && pkg upgrade && pkg install git python ffmpeg && pip install yt_dlp && cd ~ && git clone <YOUR_GIT_REPO_URL_HERE> && chmod +x ~/bin/spotdl ~/bin/spotdl.py && echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+pkg update && pkg upgrade && pkg install git python ffmpeg && pip install yt_dlp && git clone https://github.com/HIT-MAN03/spotdl.git && chmod +x ~/spotdl/bin/spotdl ~/spotdl/bin/spotdl.py && echo 'export PATH="$HOME/spotdl/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
 ```
-
-> ⚠️ Remember to replace `<YOUR_GIT_REPO_URL_HERE>` with your actual repo URL!
 
 ---
 
