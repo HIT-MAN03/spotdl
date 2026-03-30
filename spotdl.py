@@ -222,6 +222,8 @@ def save_downloaded(track):
 
 
 def main():
+    show_banner()
+    
     downloaded_set = load_downloaded()
     quality_opt = QUALITY_OPTIONS["1"]  # Default quality
 
