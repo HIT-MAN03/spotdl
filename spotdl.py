@@ -4,6 +4,7 @@
 import os
 import re
 import sys
+import time
 import yt_dlp
 
 # ---------- CONFIG ----------
@@ -73,13 +74,39 @@ EXAMPLES:
     print("\033[1;36m" + help_text + "\033[0m")
 
 
+# Rainbow colors
+RAINBOW_COLORS = [
+    "\033[1;31m",  # Red
+    "\033[1;33m",  # Yellow
+    "\033[1;32m",  # Green
+    "\033[1;36m",  # Cyan
+    "\033[1;34m",  # Blue
+    "\033[1;35m",  # Magenta
+]
+RESET = "\033[0m"
+
+
+def rainbow_text(text):
+    """Apply rainbow colors to text"""
+    result = ""
+    color_idx = 0
+    for char in text:
+        if char == '\n':
+            result += char + RESET
+            color_idx = 0
+        else:
+            result += RAINBOW_COLORS[color_idx % len(RAINBOW_COLORS)] + char
+            color_idx += 1
+    return result + RESET
+
+
 def show_banner():
     banner = r"""
 ██╗  ██╗███████╗ █████╗ ██╗   ██╗███████╗███╗   ██╗██╗     ██╗   ██╗
 ██║  ██║██╔════╝██╔══██╗██║   ██║██╔════╝████╗  ██║██║     ╚██╗ ██╔╝
-███████║█████╗  ███████║██║   ██║█████╗  ██╔██╗ ██║██║      ╚████╔╝
-██╔══██║██╔══╝  ██╔══██║╚██╗ ██╔╝██╔══╝  ██║╚██╗██║██║       ╚██╔╝
-██║  ██║███████╗██║  ██║ ╚████╔╝ ███████╗██║ ╚████║███████╗   ██║
+███████║█████╗  ███████║██║   ██║█████╗  ██╔██╗ ██║██║      ╚████╔╝ 
+██╔══██║██╔══╝  ██╔══██║╚██╗ ██╔╝██╔══╝  ██║╚██╗██║██║       ╚██╔╝  
+██║  ██║███████╗██║  ██║ ╚████╔╝ ███████╗██║ ╚████║███████╗   ██║  
 ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝╚═╝  ╚═══╝╚══════╝   ╚═╝
 
 ██████╗ ███████╗███╗   ███╗ ██████╗ ███╗   ██╗
@@ -91,7 +118,18 @@ def show_banner():
 
         ⚡ HEAVENLY DEMON SPOTIFY DOWNLOADER ⚡
     """
-    print("\033[1;36m" + banner + "\033[0m")
+    
+    # Animated loading effect
+    loading_frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+    print()
+    for _ in range(2):
+        for frame in loading_frames:
+            print(f"\r\033[1;33m{frame}\033[0m Loading...", end="", flush=True)
+            time.sleep(0.08)
+    
+    print("\r" + " " * 20 + "\r", end="", flush=True)
+    print(rainbow_text(banner))
+    print()
 
 
 def sanitize_filename(name: str) -> str:
