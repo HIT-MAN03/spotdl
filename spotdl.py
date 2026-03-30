@@ -71,10 +71,10 @@ EXAMPLES:
     spotdl --batch                   # Batch mode (paste tracks)
 
 """
-    print("\033[1;36m" + help_text + "\033[0m")
+    print(rainbow_gradient(help_text))
 
 
-# Rainbow colors
+# Rainbow colors for gradient
 RAINBOW_COLORS = [
     "\033[1;31m",  # Red
     "\033[1;33m",  # Yellow
@@ -86,18 +86,20 @@ RAINBOW_COLORS = [
 RESET = "\033[0m"
 
 
-def rainbow_text(text):
-    """Apply rainbow colors to text"""
+def rainbow_gradient(text):
+    """Apply smooth rainbow gradient from left to right"""
     result = ""
-    color_idx = 0
-    for char in text:
-        if char == '\n':
-            result += char + RESET
-            color_idx = 0
-        else:
-            result += RAINBOW_COLORS[color_idx % len(RAINBOW_COLORS)] + char
-            color_idx += 1
-    return result + RESET
+    lines = text.split('\n')
+    for line in lines:
+        if not line.strip():
+            result += '\n'
+            continue
+        line_len = len(line)
+        for i, char in enumerate(line):
+            color_idx = int((i / max(line_len - 1, 1)) * (len(RAINBOW_COLORS) - 1))
+            result += RAINBOW_COLORS[color_idx] + char
+        result += RESET + '\n'
+    return result
 
 
 def show_banner():
@@ -128,7 +130,7 @@ def show_banner():
             time.sleep(0.08)
     
     print("\r" + " " * 20 + "\r", end="", flush=True)
-    print(rainbow_text(banner))
+    print(rainbow_gradient(banner))
     print()
 
 
