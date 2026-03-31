@@ -71,34 +71,20 @@ EXAMPLES:
     spotdl --batch                   # Batch mode (paste tracks)
 
 """
-    print(rainbow_gradient(help_text))
+    print(lime_text(help_text))
 
 
-# Rainbow colors for gradient
-RAINBOW_COLORS = [
-    "\033[1;31m",  # Red
-    "\033[1;33m",  # Yellow
-    "\033[1;32m",  # Green
-    "\033[1;36m",  # Cyan
-    "\033[1;34m",  # Blue
-    "\033[1;35m",  # Magenta
-]
+# Lime color for banner
+LIME = "\033[1;92m"  # Bright lime green
 RESET = "\033[0m"
 
 
-def rainbow_gradient(text):
-    """Apply smooth rainbow gradient from left to right"""
+def lime_text(text):
+    """Apply lime green color to text"""
     result = ""
     lines = text.split('\n')
     for line in lines:
-        if not line.strip():
-            result += '\n'
-            continue
-        line_len = len(line)
-        for i, char in enumerate(line):
-            color_idx = int((i / max(line_len - 1, 1)) * (len(RAINBOW_COLORS) - 1))
-            result += RAINBOW_COLORS[color_idx] + char
-        result += RESET + '\n'
+        result += LIME + line + RESET + '\n'
     return result
 
 
@@ -130,7 +116,7 @@ def show_banner():
             time.sleep(0.08)
     
     print("\r" + " " * 20 + "\r", end="", flush=True)
-    print(rainbow_gradient(banner))
+    print(lime_text(banner))
     print()
 
 
@@ -143,7 +129,7 @@ def sanitize_filename(name: str) -> str:
 def download_audio(query: str, quality_opt: dict = None):
     if quality_opt is None:
         quality_opt = QUALITY_OPTIONS["1"]
-    
+
     safe = sanitize_filename(query)
     os.makedirs(DOWNLOAD_DIR, exist_ok=True)
     outtmpl = os.path.join(DOWNLOAD_DIR, f"{safe}.%(ext)s")
@@ -154,10 +140,16 @@ def download_audio(query: str, quality_opt: dict = None):
         "quiet": False,
         "noplaylist": True,
         "default_search": "ytsearch1",
+        "writethumbnail": True,
+        "embed_thumbnail": True,
+        "embed_metadata": True,
         "postprocessors": [{
             "key": "FFmpegExtractAudio",
             "preferredcodec": quality_opt["codec"],
             "preferredquality": quality_opt["quality"],
+        }, {
+            "key": "FFmpegThumbnailsConvertor",
+            "format": "jpg",
         }],
     }
 
