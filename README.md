@@ -2,11 +2,16 @@
 
 A powerful Python tool to search and download Spotify tracks from YouTube in multiple quality formats (MP3, WAV, FLAC).
 
-## ✨ New Features
+## ✨ Features
 
-- 🔍 **Search Mode** - Search songs by name (with or without artist), select from 10 results
+- 🏠 **Interactive Main Menu** - Choose from 7 options on launch
+- 🔍 **Search Mode** - Search songs by name, select from results, pick quality
+- 🎤 **Browse Artist Mode** - Enter artist name, browse all their songs with pagination (50/page), multi-select by number, download multiple at once
+- 🎵 **Spotify Playlist Download** - Paste Spotify playlist URL, download all tracks
+- 📺 **YouTube Playlist Download** - Paste YouTube playlist URL, download all tracks
+- 📋 **Batch Mode** - Download multiple tracks from file or pasted list
 - 🎚️ **Quality Selection** - Choose from 5 quality options (MP3 320/192/128, WAV, FLAC)
-- 📋 **Batch Mode** - Download multiple tracks from file or list
+- ⚡ **Quick Download** - Direct download without browsing results
 - 📝 **Download Log** - Tracks are logged to avoid re-downloading
 - 🚀 **Fast & Lightweight** - Works on Termux (Android) and Linux
 
@@ -62,6 +67,57 @@ pkg update && pkg upgrade && pkg install git python ffmpeg && pip install yt_dlp
 
 ## 📖 Usage
 
+### 🏠 Interactive Menu (Recommended)
+Just run `spotdl` and you'll see the main menu with all options:
+
+```bash
+spotdl
+```
+
+**Menu Options:**
+| # | Option | Description |
+|---|--------|-------------|
+| 1 | Search & Download a Single Song | Search YouTube, pick one song, choose quality |
+| 2 | Browse Artist Songs | Enter artist name, browse all their songs (50/page), multi-select |
+| 3 | Download from Spotify Playlist URL | Paste Spotify playlist URL, download all tracks |
+| 4 | Download from YouTube Playlist URL | Paste YouTube playlist URL, download all tracks |
+| 5 | Batch Download from File/List | Load tracks from file or paste a list |
+| 6 | Quick Download | Direct download with query |
+| 7 | Change Quality | Select audio quality (1-5) |
+| h | Help | Show detailed help & usage info |
+| q | Quit | Exit the program |
+
+### 🎤 Browse Artist Mode
+Browse all songs by an artist with pagination and multi-select:
+
+```bash
+spotdl -a "Taylor Swift"
+spotdl -a "The Weeknd"
+spotdl --artist "Drake"
+```
+
+**Interactive flow:**
+1. Enter artist name
+2. View paginated list of songs (50 per page)
+3. Navigate: `n` = next page, `p` = previous page
+4. Select songs: type numbers separated by commas (e.g., `1,3,5,10`)
+5. Toggle: typing the same number again deselects it
+6. Download: type `d` to download all selected songs
+7. Quit: type `q` to cancel
+
+**Example:**
+```
+Page 1/3 - Showing songs 1-50 of 127
+==========================================
+[ ] [1] Taylor Swift - Shake It Off (3:40)
+[ ] [2] Taylor Swift - Blank Space (3:52)
+[✓] [3] Taylor Swift - Love Story (3:56)
+...
+Enter command: 1,3,5    ← selects songs 1, 3, and 5
+Enter command: 3        ← deselects song 3
+Enter command: d        ← downloads selected songs
+```
+
 ### 🔍 Search Mode (Default)
 Search for songs, select by number, choose quality:
 
@@ -76,6 +132,19 @@ spotdl "shape of you"
 2. View 10 search results with duration
 3. Select song by number (1-10)
 4. Choose audio quality (1-5)
+
+### 🎵 Playlist Download
+Download entire playlists from Spotify or YouTube:
+
+```bash
+spotdl -p "https://open.spotify.com/playlist/..."
+spotdl --playlist "https://www.youtube.com/playlist?list=..."
+```
+
+**Interactive flow:**
+1. Paste playlist URL
+2. Choose quality
+3. All tracks download automatically
 
 ### 🎚️ Quality Options
 
@@ -94,6 +163,16 @@ spotdl "shape of you"
 spotdl -h
 spotdl --help
 
+# Artist mode (browse all songs by artist)
+spotdl -a "Taylor Swift"       # Browse Taylor Swift songs
+spotdl -a "The Weeknd"         # Browse The Weeknd songs
+spotdl --artist "Drake"        # Browse Drake songs
+
+# Playlist mode
+spotdl -p "https://open.spotify.com/playlist/..."  # Spotify playlist
+spotdl -p "https://www.youtube.com/playlist?list=..."  # YouTube playlist
+spotdl --playlist "URL"        # Same as -p
+
 # Search with pre-selected quality
 spotdl -q 4 "daylight"      # WAV quality
 spotdl -q 5 "shape of you"  # FLAC quality
@@ -104,8 +183,9 @@ spotdl -b playlist.txt
 spotdl --batch
 
 # Combine options
-spotdl -b -q 5 playlist.txt    # Batch with FLAC
-spotdl -q 1 "song name"        # Search with MP3 320
+spotdl -a "Taylor Swift" -q 4    # Artist mode with WAV
+spotdl -b -q 5 playlist.txt      # Batch with FLAC
+spotdl -p "URL" -q 3             # Playlist with MP3 128
 ```
 
 ### 📋 Batch Mode Examples
@@ -201,6 +281,18 @@ source ~/.bashrc
 ---
 
 ## 📝 Changelog
+
+### v3.0
+- ✅ Added interactive main menu with 7 options
+- ✅ Added Browse Artist mode with pagination (50 songs/page)
+- ✅ Added multi-select for artist songs (comma-separated numbers)
+- ✅ Added Spotify playlist URL download
+- ✅ Added YouTube playlist URL download
+- ✅ Added Quick Download option
+- ✅ Added `-a/--artist` flag for artist mode
+- ✅ Added `-p/--playlist` flag for playlist mode
+- ✅ Next/Previous page navigation for artist browsing
+- ✅ Toggle select/deselect for artist songs
 
 ### v2.0
 - ✅ Added search mode with song selection
