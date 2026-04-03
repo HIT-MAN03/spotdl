@@ -142,20 +142,27 @@ def download_audio(query: str, quality_opt: dict = None):
         "format": quality_opt["format"],
         "outtmpl": outtmpl,
         "quiet": False,
+        "no_warnings": False,
         "noplaylist": True,
         "default_search": "ytsearch1",
-        "writethumbnail": True,
-        "embed_thumbnail": True,
+        "writethumbnail": False,
+        "embed_thumbnail": False,
         "embed_metadata": True,
         "postprocessors": [{
             "key": "FFmpegExtractAudio",
             "preferredcodec": quality_opt["codec"],
             "preferredquality": quality_opt["quality"],
-        }, {
-            "key": "FFmpegThumbnailsConvertor",
-            "format": "jpg",
         }],
     }
+
+    # Try to use nodejs for YouTube extraction if available
+    try:
+        import subprocess
+        result = subprocess.run(["node", "--version"], capture_output=True, timeout=3)
+        if result.returncode == 0:
+            ydl_opts["js_runtimes"] = ["nodejs"]
+    except Exception:
+        pass
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([query])
@@ -402,32 +409,39 @@ def download_spotify_playlist(url, quality_opt):
     ydl_opts = {
         "format": "bestaudio/best",
         "quiet": False,
+        "no_warnings": False,
         "noplaylist": False,
         "extract_flat": False,
-        "writethumbnail": True,
-        "embed_thumbnail": True,
+        "writethumbnail": False,
+        "embed_thumbnail": False,
         "embed_metadata": True,
         "postprocessors": [{
             "key": "FFmpegExtractAudio",
             "preferredcodec": quality_opt["codec"],
             "preferredquality": quality_opt["quality"],
-        }, {
-            "key": "FFmpegThumbnailsConvertor",
-            "format": "jpg",
         }],
     }
-    
+
     safe_dir = DOWNLOAD_DIR
     os.makedirs(safe_dir, exist_ok=True)
     outtmpl = os.path.join(safe_dir, "%(playlist)s/%(title)s.%(ext)s")
     ydl_opts["outtmpl"] = outtmpl
 
+    # Try to use nodejs for YouTube extraction if available
+    try:
+        import subprocess
+        result = subprocess.run(["node", "--version"], capture_output=True, timeout=3)
+        if result.returncode == 0:
+            ydl_opts["js_runtimes"] = ["nodejs"]
+    except Exception:
+        pass
+
     print(f"\nDownloading Spotify playlist...")
     print(f"Quality: {quality_opt['label']}")
-    
+
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
-    
+
     print("\n✅ Playlist download complete!")
 
 
@@ -436,32 +450,39 @@ def download_youtube_playlist(url, quality_opt):
     ydl_opts = {
         "format": "bestaudio/best",
         "quiet": False,
+        "no_warnings": False,
         "noplaylist": False,
         "extract_flat": False,
-        "writethumbnail": True,
-        "embed_thumbnail": True,
+        "writethumbnail": False,
+        "embed_thumbnail": False,
         "embed_metadata": True,
         "postprocessors": [{
             "key": "FFmpegExtractAudio",
             "preferredcodec": quality_opt["codec"],
             "preferredquality": quality_opt["quality"],
-        }, {
-            "key": "FFmpegThumbnailsConvertor",
-            "format": "jpg",
         }],
     }
-    
+
     safe_dir = DOWNLOAD_DIR
     os.makedirs(safe_dir, exist_ok=True)
     outtmpl = os.path.join(safe_dir, "%(playlist)s/%(title)s.%(ext)s")
     ydl_opts["outtmpl"] = outtmpl
 
+    # Try to use nodejs for YouTube extraction if available
+    try:
+        import subprocess
+        result = subprocess.run(["node", "--version"], capture_output=True, timeout=3)
+        if result.returncode == 0:
+            ydl_opts["js_runtimes"] = ["nodejs"]
+    except Exception:
+        pass
+
     print(f"\nDownloading YouTube playlist...")
     print(f"Quality: {quality_opt['label']}")
-    
+
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
-    
+
     print("\n✅ Playlist download complete!")
 
 
