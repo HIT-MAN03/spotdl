@@ -160,7 +160,7 @@ def download_audio(query: str, quality_opt: dict = None):
         import subprocess
         result = subprocess.run(["node", "--version"], capture_output=True, timeout=3)
         if result.returncode == 0:
-            ydl_opts["js_runtimes"] = ["nodejs"]
+            ydl_opts["js_runtimes"] = {"nodejs": {}}
     except Exception:
         pass
 
@@ -432,7 +432,7 @@ def download_spotify_playlist(url, quality_opt):
         import subprocess
         result = subprocess.run(["node", "--version"], capture_output=True, timeout=3)
         if result.returncode == 0:
-            ydl_opts["js_runtimes"] = ["nodejs"]
+            ydl_opts["js_runtimes"] = {"nodejs": {}}
     except Exception:
         pass
 
@@ -473,7 +473,7 @@ def download_youtube_playlist(url, quality_opt):
         import subprocess
         result = subprocess.run(["node", "--version"], capture_output=True, timeout=3)
         if result.returncode == 0:
-            ydl_opts["js_runtimes"] = ["nodejs"]
+            ydl_opts["js_runtimes"] = {"nodejs": {}}
     except Exception:
         pass
 
